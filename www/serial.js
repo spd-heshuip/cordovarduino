@@ -67,6 +67,24 @@ cordova.define("fr.drangies.cordova.serial.Serial", function(require, exports, m
                 'registerReadCallback',
                 []
             );
+        },
+        getAllUsbDevice: function(opts,successCallback,errorCallback){
+            cordova.exec(
+                successCallback,
+                errorCallback,
+                'Serial',
+                'getAllUsbDevice' ,
+                [{'opts':opts}]
+            );
+        },
+        registerUsbListener: function(opts,successCallback,errorCallback){
+            cordova.exec(
+                successCallback,
+                errorCallback,
+                'Serial',
+                'getAllUsbDevice',
+                [{'opts':opts}]
+            )
         }
 
     };
