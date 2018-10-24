@@ -579,7 +579,7 @@ public class Serial extends CordovaPlugin {
         });
         Thread thread = new Thread(serialIoManager);
         thread.start();
-        mManagerInputOutputMap.put(String.format("%s%s",config.getPid(),config.getVid()), serialIoManager);
+        mManagerInputOutputMap.put(config.getDeviceName(), serialIoManager);
 //        mExecutor.submit(mSerialIoManager);
 	}
 
