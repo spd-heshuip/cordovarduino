@@ -82,7 +82,7 @@ cordova.define("fr.drangies.cordova.serial.Serial", function(require, exports, m
                 successCallback,
                 errorCallback,
                 'Serial',
-                'getAllUsbDevice',
+                'registerUsbListener',
                 [{'opts':opts}]
             )
         }
