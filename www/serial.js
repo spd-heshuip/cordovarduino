@@ -23,13 +23,13 @@ cordova.define("fr.drangies.cordova.serial.Serial", function(require, exports, m
                 [{'opts': opts}]
             );
         },
-        write: function(opts,data, successCallback, errorCallback) {
+        write: function(opts, successCallback, errorCallback) {
             cordova.exec(
                 successCallback,
                 errorCallback,
                 'Serial',
                 'writeSerial',
-                [{'data': data},{'opts':opts}]
+                [{'opts':opts}]
             );
         },
         writeHex: function(hexString, successCallback, errorCallback) {

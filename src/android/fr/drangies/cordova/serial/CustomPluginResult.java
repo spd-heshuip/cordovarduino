@@ -1,4 +1,4 @@
-package android_serialport_api.sample;
+package fr.drangies.cordova.serial;
 
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
@@ -44,7 +44,7 @@ public class CustomPluginResult extends PluginResult{
         super(status, b);
     }
 
-    public CustomPluginResult(Status status, byte[] data,String path) {
+    public CustomPluginResult(Status status, byte[] data, String path) {
         super(status, data);
         this.path = path;
     }

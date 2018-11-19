@@ -1,13 +1,13 @@
 package fr.drangies.cordova.serial;
 
-import org.apache.cordova.CallbackContext;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
+
+import org.apache.cordova.CallbackContext;
 
 /**
  * Custom {@link BroadcastReceiver} that can talk through a cordova {@link CallbackContext}

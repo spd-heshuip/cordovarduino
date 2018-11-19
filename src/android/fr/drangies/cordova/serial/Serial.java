@@ -41,6 +41,9 @@ import java.util.Map;
  * @author Xavier Seignard <xavier.seignard@gmail.com>
  */
 public class Serial extends CordovaPlugin {
+
+	private static final char[] HEX_CHAR = {'0', '1', '2', '3', '4', '5',
+			'6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 	// logging tag
 	private final String TAG = Serial.class.getSimpleName();
 	// actions definitions
@@ -64,7 +67,7 @@ public class Serial extends CordovaPlugin {
 	private Map<String,UsbSerialConfig> mUsbSerialConfigMap = new HashMap<>();
 
 	private Map<String,SerialInputOutputManager> mManagerInputOutputMap = new HashMap<>();
-
+	
 	// callback that will be used to send back data to the cordova app
 	private CallbackContext readCallback;
 
@@ -98,8 +101,7 @@ public class Serial extends CordovaPlugin {
 		// write to the serial port
 		else if (ACTION_WRITE.equals(action)) {
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
-            String data = arg_object.getString("data");
-			writeSerial(opts,data, callbackContext);
+			writeSerial(opts, callbackContext);
 			return true;
 		}
 		// write hex to the serial port
@@ -374,10 +376,9 @@ public class Serial extends CordovaPlugin {
 
 	/**
 	 * Write on the serial port
-	 * @param data the {@link String} representation of the data to be written on the port
 	 * @param callbackContext the cordova {@link CallbackContext}
 	 */
-	private void writeSerial(final JSONObject opts,final String data, final CallbackContext callbackContext) {
+	private void writeSerial(final JSONObject opts,final CallbackContext callbackContext) {
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 
@@ -386,7 +387,14 @@ public class Serial extends CordovaPlugin {
 			    if (config == null)
 			        return;
 
-			    UsbSerialPort port = config.getPort();
+				String data = "";
+				try {
+					data = opts.getString("data");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+				UsbSerialPort port = config.getPort();
 
 				if (port == null) {
 					callbackContext.error("Writing a closed port.");
@@ -394,7 +402,7 @@ public class Serial extends CordovaPlugin {
 				else {
 					try {
 						Log.d(TAG, data);
-						byte[] buffer = data.getBytes();
+						byte[] buffer = hexStringToByteArray(data);
 						port.write(buffer, 1000);
 						callbackContext.success();
 					}
@@ -484,7 +492,7 @@ public class Serial extends CordovaPlugin {
 
 				if (port == null) {
 					callbackContext.error("Reading a closed port.");
-				}
+				} 
 				else {
 					try {
 						int len = port.read(mReadBuffer.array(), READ_WAIT_MILLIS);
@@ -597,7 +605,16 @@ public class Serial extends CordovaPlugin {
 	 */
 	private synchronized void updateReceivedData(byte[] data,String path) {
 		if( readCallback != null ) {
-            CustomPluginResult result = new CustomPluginResult(PluginResult.Status.OK, data,path);
+
+		    JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("data", bytesToHexFun2(data));
+                jsonObject.put("deviceName",path);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK,jsonObject);
 			result.setKeepCallback(true);
 			readCallback.sendPluginResult(result);
 		}
@@ -608,7 +625,6 @@ public class Serial extends CordovaPlugin {
 	 * @param callbackContext the cordova {@link CallbackContext}
 	 */
 	private void registerReadCallback(final CallbackContext callbackContext) {
-		Log.d(TAG, "Registering callback");
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 				Log.d(TAG, "Registering Read Callback");
@@ -654,7 +670,7 @@ public class Serial extends CordovaPlugin {
 
 
 
-
+	
 	/**
 	 * Resumed activity handler
 	 * @see org.apache.cordova.CordovaPlugin#onResume(boolean)
@@ -730,6 +746,18 @@ public class Serial extends CordovaPlugin {
 
 	}
 
+	public String bytesToHexFun2(byte[] bytes) {
+		char[] buf = new char[bytes.length * 2];
+		int index = 0;
+		for(byte b : bytes) { // 利用位运算进行转换，可以看作方法一的变种
+			buf[index++] = HEX_CHAR[b >>> 4 & 0xf];
+			buf[index++] = HEX_CHAR[b & 0xf];
+		}
+
+		return new String(buf);
+	}
+
+
 	/**
 	 * Utility method to add some properties to a {@link JSONObject}
 	 * @param obj the json object where to add the new property
@@ -766,4 +794,6 @@ public class Serial extends CordovaPlugin {
             return null;
         }
     }
+
+
 }
